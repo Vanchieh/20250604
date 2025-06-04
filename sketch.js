@@ -14,18 +14,29 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(640, 480);
+  createCanvas(windowWidth, windowHeight);
   video = createCapture(VIDEO, {flipped: true});
-  video.size(640, 480);
+  video.size(windowWidth, windowHeight);
   video.hide();
   handPose.detectStart(video, gotHands);
-  
+
+  resizeGrid();
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  video.size(windowWidth, windowHeight);
+  resizeGrid();
+}
+
+function resizeGrid() {
   cols = floor(width/size);
   rows = floor(height/size);
+  grid = [];
   for (let i=0; i<cols; i++) {
     grid[i] = [];
     for (let j=0; j<rows; j++) {
-      grid[i][j] = null; // 改為 null
+      grid[i][j] = null;
     }
   }
 }
