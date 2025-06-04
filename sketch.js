@@ -1,5 +1,5 @@
 let grid = [];
-let cols, rows; let size = 10;
+let cols, rows; let size = 100; // 放大10倍
 
 let handPose;
 let video;
@@ -8,6 +8,8 @@ let options = {flipped: true};
 
 // 新增字母陣列
 const letters = ["T", "K", "U", "E", "T"];
+// 新增顏色陣列
+const colors = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"];
 
 function preload() {
   handPose = ml5.handPose(options);
@@ -96,8 +98,8 @@ function drawRect() {
   for (let i=0; i<cols; i++) {
     for (let j=0; j<rows; j++) {
       if (grid[i][j]) {
-        let {val, alpha} = grid[i][j];
-        fill(255, 223, 0, alpha);
+        let {val, alpha, color} = grid[i][j];
+        fill(color);
         text(val, i*size + size/2, j*size + size/2);
       }
     }
@@ -109,11 +111,13 @@ function addCoins(fingerX, fingerY) {
   let y = floor(fingerY / size);
   x = constrain(x, 0, cols-1);
   y = constrain(y, 0, rows-1);
-  // 隨機選一個字母
+  // 隨機選一個字母和顏色
   let letter = random(letters);
+  let color = random(colors);
   grid[x][y] = {
     val: letter,
-    alpha: (frameCount % 205) + 50
+    alpha: (frameCount % 205) + 50,
+    color: color
   };
 }
 
