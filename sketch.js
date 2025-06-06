@@ -44,22 +44,27 @@ function resizeGrid() {
 }
 
 let dropCooldown = 0; // 新增冷卻計時器
-let dropInterval = 15; // 每15幀才掉落一次
+let dropInterval = 60; // 每60幀(約1秒)才掉落一次
 
 function draw() {
   background(0);
   image(video, 0, 0, width, height);
 
-  // 掉落冷卻計時
+  // 每秒隨機掉落一個
   if (dropCooldown > 0) {
     dropCooldown--;
+  } else {
+    // 隨機選一個頂部位置掉落
+    let x = floor(random(cols));
+    addCoins(x * size + size / 2, size / 2);
+    dropCooldown = dropInterval;
   }
 
   let fingerX, fingerY;
 
-  // 只在冷卻結束時且有手時掉落一個
+  // 畫紅點與碰撞偵測
   if (hands.length > 0) {
-    let hand = hands[0]; // 只取第一隻手
+    let hand = hands[0];
     let indexFinger = hand.keypoints[8];
     fingerX = indexFinger.x;
     fingerY = indexFinger.y;
@@ -68,12 +73,6 @@ function draw() {
     fill(255, 0, 0);
     noStroke();
     ellipse(fingerX, fingerY, 20, 20);
-
-    // 只在冷卻結束時掉落
-    if (dropCooldown === 0) {
-      addCoins(fingerX, fingerY);
-      dropCooldown = dropInterval; // 重設冷卻
-    }
 
     // 檢查碰撞
     let gridX = floor(fingerX / size);
