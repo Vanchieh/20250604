@@ -43,18 +43,48 @@ function resizeGrid() {
   }
 }
 
+let dropCooldown = 0; // 新增冷卻計時器
+let dropInterval = 15; // 每15幀才掉落一次
+
 function draw() {
   background(0);
-  // ml5.js handPose Model
   image(video, 0, 0, width, height);
-  for (let i = 0; i < hands.length; i++) {
-    let hand = hands[i];
-    for (let j = 0; j < hand.keypoints.length; j++) {
-      let indexFinger = hand.keypoints[8];
-      addCoins(indexFinger.x, indexFinger.y);
+
+  // 掉落冷卻計時
+  if (dropCooldown > 0) {
+    dropCooldown--;
+  }
+
+  let fingerX, fingerY;
+
+  // 只在冷卻結束時且有手時掉落一個
+  if (hands.length > 0) {
+    let hand = hands[0]; // 只取第一隻手
+    let indexFinger = hand.keypoints[8];
+    fingerX = indexFinger.x;
+    fingerY = indexFinger.y;
+
+    // 畫紅點
+    fill(255, 0, 0);
+    noStroke();
+    ellipse(fingerX, fingerY, 20, 20);
+
+    // 只在冷卻結束時掉落
+    if (dropCooldown === 0) {
+      addCoins(fingerX, fingerY);
+      dropCooldown = dropInterval; // 重設冷卻
+    }
+
+    // 檢查碰撞
+    let gridX = floor(fingerX / size);
+    let gridY = floor(fingerY / size);
+    gridX = constrain(gridX, 0, cols-1);
+    gridY = constrain(gridY, 0, rows-1);
+    if (grid[gridX][gridY]) {
+      grid[gridX][gridY] = null;
     }
   }
-  
+
   // Falling Coins
   drawRect();
   let nextGrid = [];
@@ -64,7 +94,7 @@ function draw() {
       nextGrid[i][j] = null;
     }
   }
-  
+
   for (let i=0; i<cols; i++) {
     for (let j=0; j<rows; j++) {
       let cell = grid[i][j]; 
